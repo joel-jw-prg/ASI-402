@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#222831">
+  <meta name="description" content="ASI-402: design of a custom quadcopter for aerial reconnaissance and non-line-of-sight communications relay. NUS Mars Rover Team, University Rover Challenge 2027.">
+  <title>ASI-402 · MRT Drone Team · URC 2027</title>
+  <link rel="icon" type="image/png" href="assets/img/mrt-logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700;800&family=Overpass+Mono:wght@400;600&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- Shared SVG symbols (decorative motifs from the interim presentation) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="checker" viewBox="0 0 3 3">
+      <rect x="0" y="0" width="1" height="1"/><rect x="2" y="0" width="1" height="1"/>
+      <rect x="1" y="1" width="1" height="1"/>
+      <rect x="0" y="2" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/>
+    </symbol>
+    <symbol id="dots" viewBox="0 0 30 30">
+      <circle cx="5" cy="5" r="5"/><circle cx="15" cy="5" r="5"/><circle cx="25" cy="5" r="5"/>
+      <circle cx="5" cy="15" r="5"/><circle cx="15" cy="15" r="5"/><circle cx="25" cy="15" r="5"/>
+      <circle cx="5" cy="25" r="5"/><circle cx="15" cy="25" r="5"/><circle cx="25" cy="25" r="5"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="topbar" id="topbar">
+  <a class="brand" href="#top" aria-label="ASI-402, back to top">
+    <img src="assets/img/mrt-logo.png" alt="" width="38" height="38">
+    <span class="brand-text"><b>ASI-402</b><small>MRT Drone Team</small></span>
+  </a>
+  <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav">Sections</button>
+  <nav class="nav" id="nav" aria-label="Report sections">
+    <a href="#mission">Mission</a>
+    <a href="#background">Background</a>
+    <a href="#concept">Concept</a>
+    <a href="#propulsion">Propulsion</a>
+    <a href="#airframe">Airframe</a>
+    <a href="#electrical">Electrical</a>
+    <a href="#comms">Comms</a>
+    <a href="#testing">Testing</a>
+    <a href="#plan">Plan</a>
+    <a href="#team">Team</a>
+    <a href="#appendix">Appendix</a>
+  </nav>
+  <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+</header>
+
+<main id="main">
+
+<!-- ================================================================ HERO -->
+<section class="hero dark" id="top">
+  <div class="hero-decor" aria-hidden="true">
+    <svg class="contours" id="hero-contours" viewBox="0 0 600 600"></svg>
+    <svg class="checker checker-a"><use href="#checker"/></svg>
+    <svg class="checker checker-b"><use href="#checker"/></svg>
+  </div>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow"><b>ASI-402</b> CDE4301 Innovation &amp; Design Capstone</p>
+      <h1><span class="h1-caps">Mars Rover</span> <span class="h1-sub">Drone Team</span></h1>
+      <p class="hero-lede">A custom 5&nbsp;kg quadcopter that keeps the NUS Mars Rover connected behind terrain and scouts the route ahead at the University Rover Challenge 2027.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#mission">Explore the design</a>
+        <a class="btn btn-ghost" href="#electrical">System architecture</a>
+      </div>
+      <p class="hero-meta">Interim design report · Semester 1, AY2026/27 · National University of Singapore</p>
+    </div>
+    <figure class="hero-art">
+      <img src="assets/img/drone-cad-hero.png" width="484" height="389"
+           alt="CAD render of the quadcopter: four arms with 18-inch propellers, central electronics cage and an underslung camera gimbal">
+      <figcaption><span class="dot"></span>Preliminary CAD model</figcaption>
+    </figure>
+  </div>
+  <div class="wrap">
+    <div class="kpis" id="kpis" aria-label="Headline design figures"></div>
+  </div>
+</section>
+
+<!-- ============================================================= MISSION -->
+<section class="band light" id="mission">
+  <svg class="motif motif-dots" aria-hidden="true"><use href="#dots"/></svg>
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow"><b>01</b> Mission</p>
+      <h2>A rover that drives out of sight still has to stay in touch</h2>
+      <p class="lede">The University Rover Challenge (URC) is held each year by the Mars Society at the Mars Desert Research Station in southern Utah. Student-built rovers earn up to 400 points across four field missions. Ours expects to cover undulating terrain out to 2&nbsp;km from the base station, far enough for ridges and canyon walls to cut its radio link.</p>
+    </header>
+
+    <div class="grid g2">
+      <article class="card">
+        <h3>The problem</h3>
+        <p>Radio signal weakens with distance and is blocked outright when terrain breaks line of sight (LOS). Once the rover drops behind a ridge, the Command and Control (C2) station loses its telemetry and video.</p>
+      </article>
+      <article class="card card-accent">
+        <h3>Our answer</h3>
+        <p>A quadcopter that hovers above the obstruction as an airborne repeater, giving a non-visual line-of-sight (NVLOS) relay, and carries a gimballed camera to scout drive paths, find scattered equipment and spot elevated ArUco markers.</p>
+      </article>
+    </div>
+
+    <h3 class="sub">Where the drone may fly</h3>
+    <div class="missions">
+      <div class="mission-tabs" id="mission-tabs" role="tablist" aria-label="URC missions"></div>
+      <div class="mission-panel card" id="mission-panel" role="tabpanel" tabindex="0"></div>
+    </div>
+
+    <figure class="figure sim" id="sim">
+      <div class="fig-head">
+        <h3>Try it: restore the link over a ridge</h3>
+        <p>Drag the rover and the drone, or use the sliders. Watch which paths keep a clear line of sight.</p>
+      </div>
+      <div class="sim-stage" id="relay-sim"></div>
+      <div class="sim-controls">
+        <label class="slider"><span>Rover distance <output id="sim-rover-out"></output></span>
+          <input type="range" id="sim-rover" min="150" max="1950" step="10" value="1500"></label>
+        <label class="slider"><span>Drone distance <output id="sim-dx-out"></output></span>
+          <input type="range" id="sim-dx" min="0" max="1950" step="10" value="900"></label>
+        <label class="slider"><span>Drone height above ground <output id="sim-alt-out"></output></span>
+          <input type="range" id="sim-alt" min="0" max="120" step="1" value="60"></label>
+        <button class="btn btn-small" id="sim-reset" type="button">Planned relay position</button>
+      </div>
+      <div class="readouts r4" id="sim-readouts" aria-live="polite"></div>
+      <figcaption>Illustrative terrain, vertical scale exaggerated. Margins use the relay link budget from section 07 and assume free-space propagation along a clear line of sight.</figcaption>
+    </figure>
+
+    <h3 class="sub">Design requirements and constraints</h3>
+    <div class="grid g2" id="req-cards"></div>
+    <p class="aside">The 1:1 dummy-mass rule shapes every decision that follows: each gram of battery adds two grams to take-off mass.</p>
+
+    <h3 class="sub">Design targets against current evidence</h3>
+    <div class="table-wrap"><table class="table" id="targets-table"></table></div>
+
+    <article class="card card-quiet">
+      <h3>Why a flat quadcopter?</h3>
+      <p>Against coaxial and hexacopter layouts it has the lowest structural mass, the fewest mechanical failure points in fine desert dust, and high hover efficiency under the mass rule.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ========================================================== BACKGROUND -->
+<section class="band dark" id="background">
+  <svg class="motif motif-checker" aria-hidden="true"><use href="#checker"/></svg>
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow"><b>02</b> Background</p>
+      <h2>What last year’s drone taught us</h2>
+      <p class="lede">The team’s previous drone is our baseline. It flew at 2,654&nbsp;g on a 580&nbsp;mm frame with 4008 motors, 15-inch folding propellers and a 6S 10&nbsp;Ah lithium-ion pack. Its design review exposed four limits that this project sets out to remove.</p>
+    </header>
+
+    <div class="grid g-photo">
+      <div>
+        <figure class="photo">
+          <img src="assets/img/predecessor-drone.jpg" width="760" height="894" loading="lazy"
+               alt="The predecessor quadcopter on a workbench: compact carbon frame, folding propellers and a top-mounted battery">
+          <figcaption>The 2.7&nbsp;kg predecessor, built by the URC 2026 drone team.</figcaption>
+        </figure>
+        <figure class="figure compact">
+          <div class="fig-head"><h3>Bench to airframe: where the thrust went</h3></div>
+          <div id="thrust-loss"></div>
+          <figcaption>Per-motor thrust. Integrated thrust was 27.1% below the bench figure.</figcaption>
+        </figure>
+      </div>
+      <div class="lessons" id="lessons"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= CONCEPT -->
+<section class="band light" id="concept">
+  <svg class="motif motif-dots right" aria-hidden="true"><use href="#dots"/></svg>
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow"><b>03</b> Concept</p>
+      <h2>Use the whole 5&nbsp;kg</h2>
+      <p class="lede">Sizing is iterative: every change in component or battery mass alters take-off mass, required thrust, power and endurance. We ran the loop until the mass budget closed.</p>
+    </header>
+
+    <div class="method">
+      <ol class="method-steps" id="method-steps" role="tablist" aria-label="Design methodology"></ol>
+      <div class="method-panel card" id="method-panel" role="tabpanel" tabindex="0"></div>
+    </div>
+
+    <h3 class="sub">Concept study: 3&nbsp;kg or 5&nbsp;kg?</h3>
+    <p class="body">A lighter aircraft needs less power, but under the dummy-mass rule the battery competes with the fixed mission kit for every gram. We compared three concepts carrying the same kit.</p>
+
+    <div class="grid g2 align-start">
+      <figure class="figure">
+        <div class="fig-head"><h3>Mass budget</h3><p>Kit and airframe come first; the battery and its dummy share what is left.</p></div>
+        <div class="chart" id="chart-mass"></div>
+        <figcaption>Mass in grams. Growth is a 5% allowance held back for wiring and fasteners.</figcaption>
+      </figure>
+      <figure class="figure">
+        <div class="fig-head"><h3>Hover time per battery</h3><p>The 5&nbsp;kg design hovers 25% longer than the best 3&nbsp;kg option.</p></div>
+        <div class="chart" id="chart-concept"></div>
+        <figcaption>Model: airframe scaled with take-off mass, same mission kit, same assumptions as section 04.</figcaption>
+      </figure>
+    </div>
+
+    <ul class="findings">
+      <li><b>A · 3&nbsp;kg, today’s parts.</b> Only 352&nbsp;g remains for the battery: 10.6&nbsp;min of hover.</li>
+      <li><b>B · 3&nbsp;kg, resized airframe.</b> A lighter airframe frees 659&nbsp;g: 17.4&nbsp;min.</li>
+      <li class="pick"><b>C · 5&nbsp;kg design, selected.</b> Carries 1,240&nbsp;g of battery and hovers 21.7&nbsp;min, with 136&nbsp;g of margin under the cap.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========================================================== PROPULSION -->
+<section class="band dark" id="propulsion">
+  <svg class="motif motif-checker right" aria-hidden="true"><use href="#checker"/></svg>
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow"><b>04</b> Propulsion and energy</p>
+      <h2>Sized for hover, with thrust in reserve</h2>
+      <p class="lede">The aircraft spends most of its mission hovering as a relay, so the propulsion system is chosen for hover efficiency first and for thrust reserve in desert wind second.</p>
+    </header>
+
+    <h3 class="sub"><span class="step-n">1</span>Preliminary sizing</h3>
+    <div class="grid g-calc">
+      <div class="card calc">
+        <label class="slider"><span>Take-off mass <output id="sz-mass-out"></output></span>
+          <input type="range" id="sz-mass" min="2" max="6" step="0.1" value="5"></label>
+        <label class="slider"><span>Thrust-to-weight target <output id="sz-tw-out"></output></span>
+          <input type="range" id="sz-tw" min="1.5" max="3" step="0.1" value="2"></label>
+        <label class="slider"><span>Disk loading <output id="sz-dl-out"></output></span>
+          <input type="range" id="sz-dl" min="40" max="120" step="1" value="75"></label>
+        <div class="presets" id="sz-presets" role="group" aria-label="Disk-loading options considered"></div>
+        <p class="note" id="sz-note"></p>
+      </div>
+      <div>
+        <div class="readouts r2" id="sz-readouts" aria-live="polite"></div>
+        <div class="equations" aria-label="Sizing equations">
+          <span><i>T</i><sub>hover</sub> = <i>mg</i> / <i>N</i></span>
+          <span><i>T</i><sub>max</sub> = (T/W) · <i>T</i><sub>hover</sub></span>
+          <span><i>A</i> = <i>mg</i> / DL</span>
+          <span><i>D</i> = √(4<i>A</i> / <i>N</i>π)</span>
+        </div>
+        <p class="body small">At 5&nbsp;kg each of the four motors must lift 1,250&nbsp;gf. A thrust-to-weight target of 2 asks for 2,500&nbsp;gf per motor, and a disk loading of 75&nbsp;N/m² needs 0.654&nbsp;m² of rotor disk: the 18-inch propeller class.</p>
+      </div>
+    </div>
+
+    <h3 class="sub"><span class="step-n">2</span>Motor and propeller</h3>
+    <div class="grid g2 align-start">
+      <div>
+        <p class="body">Two shortlisted pairs were compared at the 1,250&nbsp;gf hover point by interpolating manufacturer test tables. The MAD 5008 draws about 10% less power, delivers 11% more thrust per watt and saves 192&nbsp;g across four motors. Its lower peak thrust still clears the 2,500&nbsp;gf requirement.</p>
+        <div class="table-wrap"><table class="table compare" id="motor-table"></table></div>
+        <div class="gains" id="motor-gains"></div>
+        <p class="note">The two tables come from different manufacturers’ test set-ups, so the comparison stays provisional until our own thrust-stand runs.</p>
+      </div>
+      <figure class="figure">
+        <div class="fig-head"><h3>Selected motor: input power against thrust</h3><p>MAD 5008 EEE 340KV with Fluxer Pro 18×6.1 on 6S. Move across the chart to read any operating point.</p></div>
+        <div class="chart" id="chart-motor"></div>
+        <div class="readouts r2 tight" id="mt-readouts" aria-live="polite"></div>
+        <figcaption>Manufacturer test table, linearly interpolated. Full data in Appendix D.</figcaption>
+      </figure>
+    </div>
+
+    <div class="grid g2 align-start mt">
+      <div>
+        <h4>Propeller size</h4>
+        <p class="body">The manufacturer tested three Fluxer Pro sizes on this motor. The 17-inch needs the same hover power but has less thrust in reserve. The 19-inch saves 3&nbsp;W yet adds only 3% thrust and demands a larger, heavier frame. The 18×6.1 is the compromise, and it matches the disk-loading estimate.</p>
+      </div>
+      <div class="table-wrap"><table class="table" id="prop-table"></table></div>
+    </div>
+
+    <h3 class="sub"><span class="step-n">3</span>Battery and endurance</h3>
+    <p class="body">Because the dummy must match the battery, a heavier pack adds energy but also twice its own mass to lift. The sweep recalculates take-off mass, thrust, motor operating point and power for each battery mass.</p>
+    <figure class="figure explorer">
+      <div class="explorer-main">
+        <div class="fig-head"><h3>Hover time against battery mass</h3><p id="en-headline"></p></div>
+        <div class="chart" id="chart-endurance"></div>
+        <label class="slider wide"><span>Battery mass <output id="en-batt-out"></output></span>
+          <input type="range" id="en-batt" min="400" max="2500" step="10" value="1240"></label>
+        <div class="readouts r4 tight" id="en-readouts" aria-live="polite"></div>
+      </div>
+      <aside class="explorer-side">
+        <h4>Model assumptions</h4>
+        <label class="slider"><span>Specific energy <output id="en-se-out"></output></span>
+          <input type="range" id="en-se" min="200" max="350" step="1" value="287"></label>
+        <label class="slider"><span>Usable depth of discharge <output id="en-dod-out"></output></span>
+          <input type="range" id="en-dod" min="60" max="100" step="1" value="80"></label>
+        <label class="slider"><span>ESC efficiency <output id="en-esc-out"></output></span>
+          <input type="range" id="en-esc" min="80" max="100" step="1" value="90"></label>
+        <label class="slider"><span>Wiring efficiency <output id="en-wire-out"></output></span>
+          <input type="range" id="en-wire" min="80" max="100" step="1" value="90"></label>
+        <label class="slider"><span>Energy reserve <output id="en-res-out"></output></span>
+          <input type="range" id="en-res" min="0" max="30" step="1" value="15"></label>
+        <label class="slider"><span>Auxiliary load <output id="en-aux-out"></output></span>
+          <input type="range" id="en-aux" min="20" max="100" step="1" value="60"></label>
+        <button class="btn btn-small" id="en-reset" type="button">Reset to design values</button>
+      </aside>
+      <figcaption>Fixed mass 2,384&nbsp;g (everything except battery and dummy, including 5% growth). The 60&nbsp;W auxiliary load equals the summed peak draw of payload and avionics.</figcaption>
+    </figure>
+
+    <div class="grid g2 align-start mt">
+      <div>
+        <h4>What the sweep shows</h4>
+        <ul class="ticks">
+          <li>Endurance rises across the whole feasible range, with diminishing returns.</li>
+          <li>The curve only peaks near 2.3&nbsp;kg of battery, where battery mass equals the rest of the aircraft, as momentum theory predicts.</li>
+          <li>The 5&nbsp;kg cap binds long before that, so battery mass is maximised within it.</li>
+        </ul>
+        <p class="body">A high-energy lithium-ion pack was preferred over a high-discharge LiPo: more energy per gram suits a hover mission, provided the pack can supply the current. Hover draws about 20&nbsp;A for propulsion against a 48&nbsp;A continuous rating.</p>
+        <p class="note">Next: measure thrust and electrical power on a thrust stand, then replace the hover-only model with a mission profile covering take-off, climb, transit, survey, hover and descent.</p>
+      </div>
+      <div class="card">
+        <h4>Selected battery</h4>
+        <dl class="spec" id="battery-spec"></dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ AIRFRAME -->
+<section class="band light" id="airframe">
+  <svg class="motif motif-dots" aria-hidden="true"><use href="#dots"/></svg>
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow"><b>05</b> Airframe</p>
+      <h2>Battery at the centre, camera underneath</h2>
+      <p class="lede">The symmetric four-arm frame is sized for 18-inch propellers. An upper platform carries the flight controller and radios; the lower section carries the battery and the camera gimbal.</p>
+    </header>
+
+    <div class="anatomy" id="anatomy">
+      <div class="anatomy-stage">
+        <div class="seg" id="anatomy-views" role="tablist" aria-label="CAD view"></div>
+        <div class="anatomy-canvas" id="anatomy-canvas"></div>
+      </div>
+      <div class="anatomy-note card" id="anatomy-note" aria-live="polite"></div>
+    </div>
+
+    <div class="grid g2 align-start mt">
+      <figure class="figure viewer">
+        <div class="fig-head"><h3>Frame in 3D</h3><p>Drag to orbit, scroll or pinch to zoom.</p></div>
+        <div class="viewer-stage" id="viewer3d">
+          <img src="assets/img/frame-poster.jpg" width="1100" height="768" loading="lazy" alt="Isometric view of the bare Tarot TL680A reference frame">
+          <button class="btn btn-primary" id="viewer-load" type="button">Load 3D model <small>1.9&nbsp;MB</small></button>
+        </div>
+        <div class="viewer-tools" id="viewer-tools" hidden>
+          <label class="check"><input type="checkbox" id="viewer-discs" checked> 18-inch propeller discs</label>
+          <label class="check"><input type="checkbox" id="viewer-spin" checked> Auto-rotate</label>
+          <button class="btn btn-small" id="viewer-top" type="button">Top view</button>
+          <button class="btn btn-small" id="viewer-reset" type="button">Reset</button>
+        </div>
+        <figcaption>Reference reconstruction of the bare frame used for layout; some dimensions are estimated from drawings and photographs. Discs show ideal propeller sweep.</figcaption>
+      </figure>
+      <div>
+        <div class="card">
+          <h4>Selected frame</h4>
+          <dl class="spec" id="frame-facts"></dl>
+        </div>
+        <h4 class="mt">Status and next steps</h4>
+        <p class="body">The CAD assembly was built before the parts arrived. With hardware now in hand, the next steps are to 3D-scan complex parts, refine the mounts, verify propeller clearance and wiring access, locate the centre of gravity and run finite element analysis. No structural or flight validation has been done yet.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================== ELECTRICAL -->
+<section class="band dark" id="electrical">
+  <svg class="motif motif-checker" aria-hidden="true"><use href="#checker"/></svg>
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow"><b>06</b> Electrical and control</p>
+      <h2>One battery, three supplies, four data paths</h2>
+      <p class="lede">The architecture separates propulsion power, regulated electronics power and data, so that a fault or noise on one cannot take down another. Select a block to see what is inside and why.</p>
+    </header>
+
+    <figure class="figure arch">
+      <div class="arch-bar">
+        <div class="seg" id="arch-layers" role="group" aria-label="Highlight a layer">
+          <button type="button" class="on" data-layer="all">All</button>
+          <button type="button" data-layer="power">Power</button>
+          <button type="button" data-layer="signal">Signal</button>
+        </div>
+        <ul class="legend">
+          <li><i class="key key-power"></i>Power</li>
+          <li><i class="key key-signal"></i>Signal</li>
+        </ul>
+      </div>
+      <div class="arch-grid">
+        <div class="arch-diagram" id="arch-diagram"></div>
+        <div class="arch-panel" id="arch-panel" aria-live="polite"></div>
+      </div>
+    </figure>
+
+    <div class="grid g2 mt">
+      <article class="card">
+        <h3>Why DShot, not PWM</h3>
+        <p>DShot is digital. Every ESC channel reads the same checksummed throttle value, one of 2,000 steps, so all four motors respond alike and no throttle calibration is needed. That steadies hover in gusty wind.</p>
+        <p>Bidirectional DShot also returns motor RPM to the Pixhawk, for vibration filtering and motor-health checks.</p>
+      </article>
+      <article class="card">
+        <h3>Flight-controller choice</h3>
+        <p>Six controllers were screened against two gates: redundant inertial sensors and redundant power inputs. The Pixhawk 6X on the Mini Baseboard gave the best sensor isolation and expansion for 58&nbsp;g.</p>
+        <p><a class="more" href="#app-fc">Full comparison in Appendix B</a></p>
+      </article>
+    </div>
+
+    <h3 class="sub">From block diagram to harness</h3>
+    <div class="grid g-wiring">
+      <div>
+        <p class="body">The wiring diagram fixes every wire’s gauge, label and connector before any cable is cut. Labels carry a prefix for their function, and gauges follow the current each wire carries.</p>
+        <div class="table-wrap"><table class="table" id="gauge-table"></table></div>
+        <ul class="chips" id="prefix-list" aria-label="Wire label prefixes"></ul>
+        <p class="note">Main leads stay under 250&nbsp;mm and motor extensions under 500&nbsp;mm to limit voltage drop. Optional XT30 and MT60 disconnects are marked on the video and motor branches.</p>
+      </div>
+      <figure class="figure wiring">
+        <button class="wiring-thumb" id="wiring-open" type="button" aria-haspopup="dialog">
+          <img src="assets/img/wiring-diagram-preview.jpg" width="1500" height="1544" loading="lazy"
+               alt="Full wiring diagram: battery, power module, flight controller, ESC and motors, receiver, video system and relay router with every wire labelled">
+          <span class="wiring-cta">Open the full wiring diagram</span>
+        </button>
+        <div class="zone-list" id="wiring-zones" aria-label="Jump to part of the diagram"></div>
+      </figure>
+    </div>
+
+    <div class="grid g2 align-start mt">
+      <div>
+        <h4>Pixhawk port map</h4>
+        <div class="table-wrap"><table class="table" id="port-table"></table></div>
+      </div>
+      <div>
+        <h4>Software stack <span class="tag tag-pending">Planned, not yet integrated</span></h4>
+        <ol class="stack" id="software-stack"></ol>
+      </div>
+    </div>
+
+    <article class="card card-warn mt">
+      <h3>Checks before first power-up</h3>
+      <ul class="ticks cols" id="power-checks"></ul>
+    </article>
+  </div>
+</section>
+
+<!-- =============================================================== COMMS -->
+<section class="band light" id="comms">
+  <svg class="motif motif-dots right" aria-hidden="true"><use href="#dots"/></svg>
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow"><b>07</b> Communications</p>
+      <h2>Three independent radio links</h2>
+      <p class="lede">Control, video and rover telemetry each get their own link, so losing or degrading one does not affect the others. Each was sized with a link budget before any hardware was bought.</p>
+    </header>
+
+    <figure class="figure">
+      <div class="fig-head"><h3>Signal architecture</h3><p>Operators sit inside the base station; antennas stand outside on cable extensions.</p></div>
+      <div class="signal" id="signal-diagram"></div>
+    </figure>
+
+    <div class="table-wrap mt"><table class="table" id="link-table"></table></div>
+
+    <h3 class="sub">Link budget</h3>
+    <div class="grid g2 align-start">
+      <div>
+        <p class="body">A link budget adds transmit power and antenna gains, subtracts free-space path loss (FSPL) and other losses, and compares the result with receiver sensitivity. We size each hop for 1.2&nbsp;km, a conservative figure for the 1&nbsp;km expected, and require a 20&nbsp;dB margin.</p>
+        <div class="equations stack-eq" aria-label="Link-budget equations">
+          <span>FSPL = 32.44 + 20 log<sub>10</sub> <i>f</i><sub>MHz</sub> + 20 log<sub>10</sub> <i>d</i><sub>km</sub></span>
+          <span><i>P</i><sub>RX</sub> = <i>P</i><sub>TX</sub> + <i>G</i><sub>TX</sub> + <i>G</i><sub>RX</sub> − FSPL − <i>L</i></span>
+          <span>Margin = <i>P</i><sub>RX</sub> − sensitivity</span>
+        </div>
+      </div>
+      <figure class="figure compact">
+        <div class="fig-head"><h3>Margin at 1.2&nbsp;km</h3><p>Every link against the 20&nbsp;dB target.</p></div>
+        <div class="chart" id="chart-margins"></div>
+      </figure>
+    </div>
+
+    <figure class="figure explorer mt">
+      <div class="explorer-main">
+        <div class="fig-head"><h3>Received power against range</h3><p id="lk-headline"></p></div>
+        <div class="seg wrap-seg" id="link-options" role="tablist" aria-label="Radio link"></div>
+        <div class="chart" id="chart-link"></div>
+        <label class="slider wide"><span>Range <output id="lk-dist-out"></output></span>
+          <input type="range" id="lk-dist" min="0.1" max="10" step="0.05" value="1.2"></label>
+        <label class="check" id="lk-cable-wrap"><input type="checkbox" id="lk-cable"> Add the 20&nbsp;m LMR400 base-station antenna cable</label>
+      </div>
+      <aside class="explorer-side">
+        <div class="readouts r1" id="lk-readouts" aria-live="polite"></div>
+        <p class="note" id="lk-note"></p>
+      </aside>
+      <figcaption>Free-space model with 2&nbsp;dB of connector and implementation loss. Excludes terrain, fading and interference; receiver sensitivities are provisional.</figcaption>
+    </figure>
+
+    <div class="grid g3 mt">
+      <article class="card"><h4>Control</h4><p>35.4&nbsp;dB at 2.4&nbsp;GHz and 50.9&nbsp;dB at 900&nbsp;MHz. Either band meets the target with room to spare.</p></article>
+      <article class="card"><h4>Relay</h4><p>23.4&nbsp;dB per hop, the same in both directions.</p></article>
+      <article class="card card-warn"><h4>Video is the limiting link</h4><p>13.7&nbsp;dB with the stock antenna. An 8&nbsp;dBi directional antenna raises it to 19.7&nbsp;dB; a range test will confirm before purchase.</p></article>
+    </div>
+    <p class="note">Control and relay both use 2.4&nbsp;GHz. We plan to place them on channels at opposite ends of the band and verify this by test. Singapore’s IMDA restricts 900&nbsp;MHz relays locally, and other rover radios may share that band, so its use will be settled in testing.</p>
+  </div>
+</section>
+
+<!-- ============================================================= TESTING -->
+<section class="band dark" id="testing">
+  <svg class="motif motif-checker right" aria-hidden="true"><use href="#checker"/></svg>
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow"><b>08</b> Testing</p>
+      <h2>First hardware result: the relay radios talk</h2>
+      <p class="lede">Design, preliminary testing and parts ordering are complete. Component testing begins now that the hardware has arrived.</p>
+    </header>
+
+    <ol class="pipeline" id="pipeline"></ol>
+
+    <h3 class="sub">2.4&nbsp;GHz repeater compatibility test</h3>
+    <div class="grid g2 align-start">
+      <div class="steps">
+        <div><h4>Purpose</h4><p>The on-board GL.iNet repeater and the base-station Rocket M2 use different Wi-Fi configurations. Before building around them we checked that they interoperate.</p></div>
+        <div><h4>Method</h4><p>We joined the repeater to the Rocket M2 network, stood the two devices 10–15&nbsp;m apart and pinged in each direction, in both extender and router modes.</p></div>
+        <div><h4>Result</h4><p>The first attempts timed out: the devices sat on different IP subnets. After the repeater was readdressed onto the Rocket M2 subnet, router mode returned all four packets in 2–30&nbsp;ms. Extender mode still failed.</p></div>
+        <div><h4>Analysis</h4><p>Early pings succeeded in one direction only, which points to the repeater’s firewall rejecting unknown addresses. Next we will disable the firewall and repeat the test, then measure packet loss and throughput at range and across the full base–drone–rover chain.</p></div>
+      </div>
+      <figure class="figure terminal-fig">
+        <div class="seg" id="ping-tabs" role="tablist" aria-label="Repeater network mode"></div>
+        <pre class="terminal" id="ping-terminal" tabindex="0"></pre>
+        <figcaption id="ping-caption"></figcaption>
+      </figure>
+    </div>
+
+    <h3 class="sub">What is verified, and what is not</h3>
+    <p class="body">Only the repeater connection has been measured. Every other performance figure in this report is a calculation from manufacturer data, and is labelled as such.</p>
+    <div class="table-wrap"><table class="table" id="validation-table"></table></div>
+  </div>
+</section>
+
+<!-- ================================================================ PLAN -->
+<section class="band light" id="plan">
+  <svg class="motif motif-dots" aria-hidden="true"><use href="#dots"/></svg>
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow"><b>09</b> Challenges, risk and plan</p>
+      <h2>Open problems and the road to flight</h2>
+      <p class="lede">Two technical challenges shaped the first semester. Both are managed with explicit margins now and resolved by testing next.</p>
+    </header>
+
+    <div class="grid g2 align-start">
+      <article class="card challenge">
+        <p class="eyebrow"><b>01</b> Challenge</p>
+        <h3>Piloting from inside the base station</h3>
+        <p>Operators sit in an enclosed base station that blocks radio. A 20&nbsp;m LMR400 coaxial cable carries the control signal to an antenna outside, and an HDMI cable brings the goggles’ video in.</p>
+        <div class="table-wrap"><table class="table" id="cable-table"></table></div>
+        <p>Both control bands keep well over 20&nbsp;dB after the cable. We found no reliable loss data for the HDMI run, and adaptors add loss of their own.</p>
+        <h4>Validation plan</h4>
+        <ul class="ticks">
+          <li>Measure the cable’s insertion loss.</li>
+          <li>Verify control-link performance with the extension fitted.</li>
+          <li>Test HDMI video stability at the required resolution and frame rate.</li>
+        </ul>
+      </article>
+      <article class="card challenge">
+        <p class="eyebrow"><b>02</b> Challenge</p>
+        <h3>Designing from datasheet values</h3>
+        <p>Budget and time allow one prototype, so our figures rest on supplier data: frame dimensions, part masses, motor efficiency, battery voltage sag and radio transmit power. Errors compound, because an under-estimated battery mass also raises the dummy mass.</p>
+        <h4>Margins built into every estimate</h4>
+        <ul class="chips big" id="margin-chips"></ul>
+        <p>Conservative figures let the other subsystems plan missions inside limits we expect to meet.</p>
+      </article>
+    </div>
+
+    <h3 class="sub">Risk and mitigation</h3>
+    <figure class="figure risk">
+      <div class="risk-grid">
+        <div>
+          <div class="seg" id="risk-toggle" role="group" aria-label="Risk state">
+            <button type="button" class="on" data-state="before">Before mitigation</button>
+            <button type="button" data-state="after">After mitigation</button>
+          </div>
+          <div class="matrix" id="risk-matrix"></div>
+        </div>
+        <div class="risk-list" id="risk-list"></div>
+      </div>
+    </figure>
+
+    <h3 class="sub">Roadmap</h3>
+    <ol class="phases" id="phase-list"></ol>
+    <div class="tracks">
+      <div class="track">
+        <p class="eyebrow">Flight track</p>
+        <ol><li><b>Assembly and FEA</b>Integration, final CAD, component mounts</li><li><b>PID tuning</b>Controller calibration, software integration</li><li><b>Flight testing</b>Hover, endurance, range, signal range</li><li><b>Mission planning</b>Final specifications and flight-time verification</li></ol>
+      </div>
+      <div class="track">
+        <p class="eyebrow">Computer-vision track</p>
+        <ol><li><b>Literature review</b>Assess last year’s model, survey alternatives</li><li><b>Model benchmarking</b>Train and test candidates on sample images</li><li><b>Refinement</b>Tune parameters, optimise the script</li></ol>
+      </div>
+    </div>
+
+    <figure class="figure gantt-fig">
+      <div class="fig-head"><h3>Project schedule</h3><p>35 tasks across two semesters. Filter by workstream; hover or focus a bar for detail.</p></div>
+      <div class="seg wrap-seg" id="gantt-filters" role="group" aria-label="Filter tasks"></div>
+      <div class="gantt-scroll"><div class="gantt" id="gantt"></div></div>
+      <figcaption>Status as recorded in the team Gantt chart at the interim presentation.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================================================================ TEAM -->
+<section class="band dark" id="team">
+  <svg class="motif motif-checker" aria-hidden="true"><use href="#checker"/></svg>
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow"><b>10</b> Team</p>
+      <h2>Who did what</h2>
+      <p class="lede">Four students form the drone subsystem of the NUS Mars Rover Team, one of eight subsystems preparing for URC 2027. Responsibilities follow each member’s specialisation.</p>
+    </header>
+
+    <div class="team-cards" id="team-cards"></div>
+
+    <h3 class="sub">Workstreams by project phase</h3>
+    <div class="table-wrap"><table class="table matrix-table" id="workstream-table"></table></div>
+
+    <h3 class="sub">NUS Mars Rover Team subsystems</h3>
+    <ul class="subsystems" id="subsystems"></ul>
+
+    <p class="ack">We thank our supervisors, Mr Eugene Ee and Professor Scott, the other Mars Rover Team subsystems, and the previous drone team for sharing their technical knowledge and experience.</p>
+  </div>
+</section>
+
+<!-- ============================================================ APPENDIX -->
+<section class="band light appendix" id="appendix">
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow"><b>A–F</b> Appendices</p>
+      <h2>Reference data</h2>
+      <p class="lede">Supporting tables behind the figures above.</p>
+    </header>
+
+    <details class="app" id="app-bom" open>
+      <summary><span>A</span> Selected components and mass budget</summary>
+      <div class="app-body">
+        <div class="seg wrap-seg" id="bom-filters" role="group" aria-label="Filter components"></div>
+        <div class="table-wrap"><table class="table" id="bom-table"></table></div>
+        <h4>Ground equipment</h4>
+        <dl class="spec" id="ground-list"></dl>
+      </div>
+    </details>
+
+    <details class="app" id="app-fc">
+      <summary><span>B</span> Flight-controller trade study</summary>
+      <div class="app-body">
+        <div class="table-wrap"><table class="table" id="fc-table"></table></div>
+        <p class="note">All candidates run ArduPilot or PX4. Source: manufacturer and autopilot documentation.</p>
+      </div>
+    </details>
+
+    <details class="app" id="app-links">
+      <summary><span>C</span> Link-budget inputs</summary>
+      <div class="app-body">
+        <div class="table-wrap"><table class="table" id="link-inputs"></table></div>
+        <p class="note">Assumptions: free-space path loss, unobstructed line of sight, nominal antenna alignment, 1.2&nbsp;km per hop, 2&nbsp;dB other losses, 20&nbsp;dB minimum margin. Sensitivities are preliminary estimates.</p>
+      </div>
+    </details>
+
+    <details class="app" id="app-motor">
+      <summary><span>D</span> Motor test data</summary>
+      <div class="app-body">
+        <div class="table-wrap"><table class="table" id="motor-data"></table></div>
+        <p class="note">MAD 5008 EEE 340KV with Fluxer Pro 18×6.1 on 6S; manufacturer test table.</p>
+      </div>
+    </details>
+
+    <details class="app" id="app-abbr">
+      <summary><span>E</span> Abbreviations</summary>
+      <div class="app-body">
+        <label class="search"><span class="sr">Filter abbreviations</span><input type="search" id="abbr-search" placeholder="Filter, e.g. NVLOS"></label>
+        <dl class="abbr" id="abbr-list"></dl>
+      </div>
+    </details>
+
+    <details class="app" id="app-refs">
+      <summary><span>F</span> References and sources</summary>
+      <div class="app-body">
+        <ol class="refs" id="ref-list"></ol>
+      </div>
+    </details>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer dark">
+  <div class="wrap footer-grid">
+    <div>
+      <p class="footer-brand"><img src="assets/img/mrt-logo.png" alt="" width="44" height="44"> ASI-402 · NUS Mars Rover Team</p>
+      <p>Design of a custom quadcopter for aerial reconnaissance and non-visual line-of-sight communications relay in the University Rover Challenge 2027.</p>
+    </div>
+    <div>
+      <p>Interim report for CDE4301 Innovation &amp; Design Capstone. Figures are preliminary estimates until validated by test.</p>
+      <p><a href="#top">Back to top</a></p>
+    </div>
+  </div>
+</footer>
+
+<!-- Full wiring diagram viewer -->
+<div class="modal" id="wiring-modal" role="dialog" aria-modal="true" aria-label="Wiring diagram" hidden>
+  <div class="modal-bar">
+    <strong>Wiring diagram</strong>
+    <div class="modal-zones" id="modal-zones"></div>
+    <div class="modal-tools">
+      <button type="button" id="wz-out" aria-label="Zoom out">−</button>
+      <button type="button" id="wz-in" aria-label="Zoom in">+</button>
+      <button type="button" id="wz-close" class="close">Close</button>
+    </div>
+  </div>
+  <div class="modal-stage" id="wiring-stage" tabindex="0" aria-label="Wiring diagram. Drag to pan, scroll to zoom.">
+    <img id="wiring-full" alt="Full wiring diagram" draggable="false">
+  </div>
+</div>
+
+<div class="tip" id="tip" role="tooltip" hidden></div>
+
+<script src="js/data.js" defer></script>
+<script src="js/charts.js" defer></script>
+<script src="js/diagrams.js" defer></script>
+<script src="js/viewer3d.js" defer></script>
+<script src="script.js" defer></script>
+</body>
+</html>
